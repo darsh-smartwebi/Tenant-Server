@@ -25,9 +25,7 @@ io.on("connection", (socket) => {
 /* ---------------- CONFIG ---------------- */
 
 const PORT = Number(process.env.PORT) || 3000;
-const SCRIPT_URL =
-  process.env.SCRIPT_URL ||
-  "https://script.google.com/macros/s/AKfycbwqeld0hUwb6T7FJXjBpqXHoYtWKnB41_L81xGC0MBgrqxOUcylj_lsWEe_x1MVyw8Ghg/exec";
+const SCRIPT_URL = process.env.SCRIPT_URL;
 
 /* ---------------- HEALTH ---------------- */
 
