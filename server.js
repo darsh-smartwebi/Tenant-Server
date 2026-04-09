@@ -1,26 +1,8 @@
 import express from "express";
 import cors from "cors";
-import http from "http";
-import { Server } from "socket.io";
 
 const app = express();
 app.use(cors());
-
-/* ---------------- SOCKET SERVER ---------------- */
-
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: { origin: "*" },
-});
-
-io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
-});
 
 /* ---------------- CONFIG ---------------- */
 
@@ -45,38 +27,6 @@ async function fetchTenants() {
 
   return await r.json();
 }
-
-/* ---------------- REALTIME WATCHER ---------------- */
-
-let lastSnapshot = null;
-
-function hasChanged(data) {
-  const hash = JSON.stringify(data);
-  const changed = hash !== lastSnapshot;
-  lastSnapshot = hash;
-  return changed;
-}
-
-async function watchTenants() {
-  try {
-    const data = await fetchTenants();
-
-    if (!lastSnapshot) {
-      lastSnapshot = JSON.stringify(data);
-      return;
-    }
-
-    if (hasChanged(data)) {
-      console.log("Tenants changed → pushing update");
-      io.emit("tenants:update", data);
-    }
-  } catch (err) {
-    console.log("Watcher error:", err.message);
-  }
-}
-
-/* check every 5 sec */
-setInterval(watchTenants, 5000);
 
 /* ---------------- ROUTES ---------------- */
 
@@ -112,4 +62,4 @@ app.get("/api/filter", async (req, res) => {
 
 /* ---------------- START ---------------- */
 
-server.listen(PORT, () => console.log(`Server running on :${PORT}`));
+app.listen(PORT, () => console.log(`Server running on :${PORT}`));
